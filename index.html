@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Teachers' Day - One Piece Theme</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#FCE5B3; --bg2:#F9D28E; --accent:#D62828; --accent2:#F77F00; --card:#fffbe7;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:'Poppins',system-ui;
+      margin:0; min-height:100vh;
+      background: radial-gradient(circle at 10% 20%,var(--bg1),transparent 25%), 
+                  radial-gradient(circle at 90% 80%,var(--bg2),transparent 25%), 
+      background-size:cover;
+      background-attachment:fixed;
+      display:flex; align-items:center; justify-content:center; padding:32px;
+    }
+    .card{
+      width:100%; max-width:540px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,250,230,0.95));
+      border:3px solid #b8860b;
+      border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.3);
+      padding:28px; position:relative; overflow:hidden;
+    }
+    h1{
+      margin:0 0 10px; font-size:24px; letter-spacing:1px; 
+      color:#3b2f1e; font-family:"Helvetica Neue",Arial;
+    }
+    p.lead{margin:0 0 18px; color:#5b4636; font-size:15px}
+    form{display:flex; gap:12px; align-items:center}
+    input[type="text"]{
+      flex:1; padding:12px 14px; border-radius:12px;
+      border:2px dashed rgba(0,0,0,0.2);
+      background:linear-gradient(180deg,#fffdf5,#f9eecf);
+      font-size:16px
+    }
+    input[type="text"]:focus{outline:none; box-shadow:0 6px 18px rgba(246,177,77,0.4); border-color:#f77f00}
+    button{
+      padding:12px 16px; border-radius:12px; border:0; font-weight:700;
+      cursor:pointer; background:linear-gradient(90deg,var(--accent),var(--accent2));
+      color:white; box-shadow:0 8px 20px rgba(0,0,0,0.25); font-family:"Helvetica Neue",Arial;
+    }
+    .result{
+      margin-top:18px; padding:18px; border-radius:14px;
+      background:linear-gradient(90deg,#fffbe7,#fff3d4);
+      text-align:center; font-size:20px; display:none;
+      font-family:'Pirata One',Arial; color:#8b0000;
+    }
+    .name{display:block; font-weight:800; font-size:28px; color:#d62828; margin-top:6px}
+    .cute{
+      position:absolute; right:-20px; top:-30px;
+      font-size:90px; filter:drop-shadow(0 6px 20px rgba(0,0,0,0.2));
+      transform:rotate(15deg); opacity:0.2
+    }
+    .reset{background:transparent; border:0; color:#6b6b7a; font-weight:600; text-decoration:underline; cursor:pointer; margin-left:8px}
+    footer{margin-top:14px; font-size:12px; color:#9a9aa6}
+    canvas#confetti{position:absolute; inset:0; pointer-events:none}
+    @media (max-width:480px){.cute{font-size:70px; right:-10px; top:-20px}}
+  </style>
+</head>
+<body>
+  <div class="card" role="region" aria-labelledby="title">
+    <div class="cute">👒</div> <!-- Straw hat instead of ribbon -->
+    <canvas id="confetti"></canvas>
+    <h1 id="title">From Jean And Reck</h1>
+    <p class="lead">Hello sir! 🏴‍☠️</p>
+
+    <form id="greetForm" aria-describedby="hint">
+      <label for="name" class="sr-only">Name:</label>
+      <input id="name" name="name" type="text" placeholder="Type your name here..." autocomplete="name" required />
+      <button type="submit">Sail!</button>
+      <button type="button" class="reset" id="resetBtn" title="Reset">Reset</button>
+    </form>
+
+    <div class="result" id="result" aria-live="polite"></div>
+    <footer></footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('greetForm');
+    const nameInput = document.getElementById('name');
+    const result = document.getElementById('result');
+    const resetBtn = document.getElementById('resetBtn');
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+
+    function resize(){ 
+      confettiCanvas.width = confettiCanvas.clientWidth; 
+      confettiCanvas.height = confettiCanvas.clientHeight; 
+    }
+    window.addEventListener('resize', resize); resize();
+
+    function makeConfetti(){
+      const pieces = [];
+      const colors = ['#FFD166','#EF476F','#118AB2','#06D6A0','#8D5524'];
+      for(let i=0;i<80;i++){
+        pieces.push({x: Math.random()*confettiCanvas.width, y: Math.random()*-confettiCanvas.height, r: Math.random()*6+4, vx:(Math.random()-0.5)*2, vy:Math.random()*3+2, c: colors[Math.floor(Math.random()*colors.length)], rot: Math.random()*360});
+      }
+      let t=0;
+      function draw(){
+        ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+        for(const p of pieces){
+          p.x += p.vx; p.y += p.vy; p.rot += p.vx*5;
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+          ctx.fillStyle = p.c; ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+          ctx.restore();
+        }
+        t++;
+        if(t<240) requestAnimationFrame(draw);
+        else ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+      }
+      draw();
+    }
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      if(!name){ nameInput.focus(); return; }
+      const safe = name.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      result.innerHTML = `<strong>☠️ HAPPY TEACHERS' DAY!!! ☠️</strong><span class="name">${safe}</span>`;
+      result.style.display = 'block';
+      makeConfetti();
+      result.animate([{transform:'scale(0.95)'},{transform:'scale(1.05)'},{transform:'scale(1)'}], {duration:500, easing:'ease-out'});
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      nameInput.value=''; result.style.display='none'; nameInput.focus(); ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+    });
+
+    const sr = document.createElement('p'); sr.id='hint'; sr.className='sr-only'; sr.style.position='absolute'; sr.style.left='-9999px'; sr.textContent='Name field is required. After submitting you will see a greeting.'; document.body.appendChild(sr);
+  </script>
+</body>
+</html>
